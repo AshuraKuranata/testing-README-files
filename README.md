@@ -1,7 +1,7 @@
 # testing-README-files
+---
 
 ## THE CONCEPT
-
 We met together as a group to discuss the options of whta we wanted to create for this first game.  Our team member had a good idea for a cyber-punk/dungeons & dragons style game.
 
 We began the process by seeing what developed lines of code they had created:
@@ -92,7 +92,9 @@ console.log("This is part of an going project. Stay alive and stay tuned for mor
 
 We took a look over the code base and thought it was a good start to work through!
 
+---
 ###  FIRST STEPS
+---
 
 From here, we decided that the first iterations we'd take on this is to make the process for the start of the game in character creation to make the faction choice.
 
@@ -174,7 +176,7 @@ This solution allows the player to input any properly spelled version of the acc
 
 ``` javascript
 John
- MAGE // Input was 'mAgE' and prints correctly 
+ MAGE // Input was 'mAgE' and it printed correctly 
  |HEALTH| 50
  |SANITY| 100
  |WISDOM| 15
@@ -186,3 +188,130 @@ John
 ```
 
 This was our first major update.
+
+---
+
+### Bar Scene
+
+---
+
+The next update we wanted to add in was the potential branching content that would occur for the scenario.
+
+We brainstormed as a group and came up with:
+
+* A huge amount of missing peoples posters scattered across the City of Light
+* A new sect called the "Soul Survivors" spreading in the City of Light
+* A need to manage the Darkness that give the player's character power, but at the potential cost of losing themselves.
+
+Based on that, the team used chatGPT to help craft a simple intro story:
+
+``` Javascript
+console.log("In the City of Light, years of prosperity and peace teetered on the edge of ruin. A new force had taken root—an extremist faction calling themselves the 'Soul Survivors.\n'")
+console.log("Their doctrine was cryptic, their motives shrouded in twisted faith, but their actions spoke louder than any sermon.\n")
+console.log("Missing persons posters lined the streets, their faces now whispers in the wind. And then came the 'Darkness'—a creeping, unnatural force that wrapped itself around the city's heart,\n")
+console.log("swallowing whole districts in shadow. There was no doubt about its source. The City stands at a crossroads. The time for neutrality has passed.\n")
+console.log("It's up to you to lead determine the fate of 'Light'.\n")
+```
+
+After doing this, we also thought of some areas that we think would be interesting for the characters to potentially enter:
+
+| Location        | Encounters  |
+| ------------- |:-------------:| 
+| home      | 'Game Over' | 
+| abandoned apartment      | 'Search to find access to Soul Survivor cult' | 
+| bar | get info on abandoned apartment, drink (potential Game Over) |
+| soul survivor location | Game Over if not prepared, back access if prepared | 
+
+In this, we decided to break out our work slightly - one team would work on building a looping function for the bar scene and the other group would work on the loop for the prompt selection of the locations to visit.
+
+The bar scene initially started out as:
+``` Javascript
+while (visitBar = true) {
+    console.log("\nYou're at the bar.")
+    function drinking() {
+        if (chara.drinks >= 0 && chara.drinks < 3) {
+        chara.sanity += 5;
+    }   else if (chara.drinks >= 3) {
+        console.log("---GAME OVER---")
+        gameOver = true;
+        checkGameOver()
+    }}
+}
+```
+This just got the initial interest of the idea that a player was rewarded for drinking, but if they drank too much, that would lead to a game over.
+
+We realized that there were some issues in the code where we forgot to increase the drink count for the player and then built out additional functional aspects to the other choices to the code.  This led us to:
+
+``` Javascript
+function drinking() {
+    if (chara.drinks >= 0 && chara.drinks < 3) {
+        console.log("Bartender tells you, 'Best take it slow.'\n");
+        chara.sanity += 5;
+        console.log(`You feel refreshed and ready to face the challenges ahead.\nGain Sanity +5: ${chara.sanity}`)
+        chara.drinks += 1;
+    }
+    else if (chara.drinks >= 3) {
+        console.log("\nBartender tells you, 'You're not looking too hot there.'");
+        console.log("'What's the point of resistance?' you ask yourself as you keep drinking your worries at the bottom of the glass.")
+        console.log("Inebrieated, you stumble out of the bar, and forget the purpose you once had.")
+        console.log("---GAME OVER---")
+        gameOver = true;
+        checkGameOver()
+    }
+}
+while (visitBar = true) {
+    console.log("\nYou're at the bar.")
+    console.log("You can: |talk| to barkeep  |drink|  |leave| bar\n")
+    barChoice = prompt("What do you do? ");
+        if (barChoice = 'talk') {
+            console.log("Bartender says important stuff to you about apt.")
+        } else if (barChoice = 'drink') {
+            drinking();
+        } else if (barChoice = 'leave') {
+            console.log("\nYou pay your respects and leave the bar.")
+            visitChoice = true;
+            return visitBar = false;
+        } else
+}
+```
+In this code, the while loop function worked, but we found a major bug:
+
+* The if...elseif statements were not checking if barChoice was equal but instead making them equal, which didn't run properly and only output the bartender dialogue
+
+We made some adjustments and then ended up with:
+``` Javascript
+function drinking() {
+    if (chara.drinks >= 0 && chara.drinks < 3) {
+        console.log("Bartender tells you, 'Best take it slow.'\n");
+        chara.sanity += 5;
+        console.log(`You feel refreshed and ready to face the challenges ahead.\nGain Sanity +5: ${chara.sanity}`)
+        chara.drinks += 1;
+    }
+    else if (chara.drinks >= 3) {
+        console.log("\nBartender tells you, 'You're not looking too hot there.'");
+        console.log("'What's the point of resistance?' you ask yourself as you keep drinking your worries at the bottom of the glass.")
+        console.log("Inebrieated, you stumble out of the bar, and forget the purpose you once had.")
+        console.log("---GAME OVER---")
+        gameOver = true;
+        checkGameOver()
+    }
+}
+while (visitBar = true) {
+    console.log("\nYou're at the bar.")
+    console.log("You can: |talk| to barkeep  |drink|  |leave| bar\n")
+    barChoice = prompt("What do you do? ");
+        if (barChoice === 'talk') {
+            console.log("Bartender says important stuff to you about apt.")
+        } else if (barChoice === 'drink') {
+            drinking();
+        } else if (barChoice === 'leave') {
+            console.log("\nYou pay your respects and leave the bar.")
+            visitChoice = true;
+            return visitBar = false;
+        } else;
+}
+```
+
+This was a huge breakthrough as this while function would now be usable for our other branch paths to operate under based on the game's conditions!
+
+---

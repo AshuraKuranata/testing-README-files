@@ -127,16 +127,13 @@ while (visitBar = true) {
     barChoice = prompt("What do you do? ");
         if (barChoice === 'talk') {
             console.log("Bartender says important stuff to you about apt.")
-            barChoice = null;
         } else if (barChoice === 'drink') {
             drinking();
-            barChoice = null;
         } else if (barChoice === 'leave') {
             console.log("\nYou pay your respects and leave the bar.")
-            barChoice = null;
             visitChoice = true;
             return visitBar = false;
-        } else barChoice = null;
+        } else;
 }
 
 
